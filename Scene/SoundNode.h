@@ -33,6 +33,10 @@ private:
         ar & boost::serialization::base_object<SceneNode>(*this);
     }
 
+
+    float vol;
+    //SoundResource* res;
+    
 protected:
     ISceneNode* CloneSelf();
 
@@ -55,7 +59,19 @@ public:
      * @see ISceneNode::Accept
      */
     void Accept(ISceneNodeVisitor& visitor);
+    
 
+    // Play methods
+
+/*     void Play(); */
+
+/*     void Stop(); */
+
+/*     void Pause(); */
+    
+/*     void Reset(); */
+    
+    
 };
 
 } // NS Scene
