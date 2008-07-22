@@ -26,6 +26,7 @@
 #include <Core/QueuedEvent.h>
 #include <Core/IListener.h>
 #include <vector>
+#include <map>
 
 namespace OpenEngine {
 namespace Sound {
@@ -60,7 +61,8 @@ private:
 	//the root of the tree
 	ISceneNode* theroot;
 
-	//the buffers
+	//the map
+//	map<int,ALuint*> loadedsoundfiles;
 
 public:
     static QueuedEvent<SoundEventArg*>* process;
@@ -83,7 +85,8 @@ public:
     void VisitTransformationNode(TransformationNode* node);
 	void VisitSoundNode(SoundNode* node);
 
-	bool CheckID(int id);
+//	bool CheckID(int id);
+
 };
 
 

@@ -100,54 +100,68 @@ void OpenALSoundManager::VisitTransformationNode(TransformationNode* node) {
 
 }
 
+/*
 bool OpenALSoundManager::CheckID(int id) {
 
-	return false;	
+	map<int, ALuint*>::iterator iter = loadedsoundfiles.find(id);
+	return (iter != loadedsoundfiles.end());
 
 }
+*/
 
 void OpenALSoundManager::VisitSoundNode(SoundNode* node) {
 
+	//make nessesary variables
+	ALuint* source;
+	ALCenum error;
+	
 	//check if loaded
-	if (CheckID(node->GetID())) {
+/*	map<int, ALuint*>::iterator iter = loadedsoundfiles.find(node->GetID());
+	
+	if (iter != loadedsoundfiles.end()) {
+
+		source = iter->second;
+*/
+	if (node->GetID() != -1) {
+		//setup the source settings
+		alSource3f(*source, AL_POSITION, pos[0], pos[1], pos[2]);
+		if ((error = alGetError()) != AL_NO_ERROR) 
+			logger.info << "tried to set position but got: " << error << logger.end;
+
+		alSourcef(*source, AL_GAIN, (ALfloat)node->GetGain());
+		if ((error = alGetError()) != AL_NO_ERROR) 
+			logger.info << "tried to set position but got: " << error << logger.end;
 
 	}
 	//we have to load it :(((
 	else {
-		//make nessesary variables
-		ALuint buffer[1], source[1];
-		ALCenum error;
-
-		//generate the buffer
-		alGenBuffers(1, &(buffer[0]));
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to gen buffer but got: " << error << logger.end;
-
-		//TODO BIND THIS TO Chistains ACTUAL DATA
-		ALvoid *data;
-		//fill the buffer
-		alBufferData(buffer[0], AL_FORMAT_MONO8, data, 10, 200);
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to load the buffer but got: " << error << logger.end;
-
+				
 		//generate the source
-		alGenSources(1, &(source[0]));
+		alGenSources(1, source);
 		if ((error = alGetError()) != AL_NO_ERROR) 
 			logger.info << "tried to gen source but got: " << error << logger.end;
 
 		//setup the source settings
-		alSource3f(source[0], AL_POSITION, pos[0], pos[1], pos[2]);
+		alSource3f(*source, AL_POSITION, pos[0], pos[1], pos[2]);
 		if ((error = alGetError()) != AL_NO_ERROR) 
 			logger.info << "tried to set position but got: " << error << logger.end;
 
-		alSourcef(source[0], AL_GAIN, (ALfloat)node->GetGain());
+		alSourcef(*source, AL_GAIN, (ALfloat)node->GetGain());
 		if ((error = alGetError()) != AL_NO_ERROR) 
 			logger.info << "tried to set position but got: " << error << logger.end;
 
+		//TODO BIND THIS TO Chistains ACTUAL DATA
+		ALuint *data;
+		
 		//attach the buffer
-		alSourcei(source[0], AL_BUFFER, buffer[0]);
+		alSourcei(*source, AL_BUFFER, *data);
 		if ((error = alGetError()) != AL_NO_ERROR) 
 			logger.info << "tried to bind source and buffer together but got: " << error << logger.end;
+
+		node->SetID(*source);
+
+/*		//remember to add to loaded files
+		loadedsoundfiles[node->GetID()] = source; */
 	}
 
 	node->VisitSubNodes(*this);

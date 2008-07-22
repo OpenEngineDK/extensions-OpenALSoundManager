@@ -71,9 +71,10 @@ public:
 	float GetGain();
 	void SetGain(float gain);
 
-    int GetID();
 
-    
+    int GetID();
+    void SetID(int val);
+
 };
 
 } // NS Scene

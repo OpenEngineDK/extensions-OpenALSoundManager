@@ -79,6 +79,11 @@ void SoundNode::SetGain(float gain) {
 int SoundNode::GetID() {
 	return id;
 }
+
+void SoundNode::SetID(int val) {
+	id = val;
+}
+
     
 } //NS Scene
 } //NS OpenEngine
