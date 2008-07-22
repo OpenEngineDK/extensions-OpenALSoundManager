@@ -8,13 +8,18 @@
 //--------------------------------------------------------------------
 
 #include <Scene/SoundNode.h>
+
+#include <Sound/OpenALSoundManager.h>
+
 #include <Logging/Logger.h>
 
 namespace OpenEngine {
 namespace Scene {
 
-SoundNode::SoundNode() {
+using namespace OpenEngine::Sound;
 
+SoundNode::SoundNode() {
+    id = -1;
 }
 
 /**
@@ -24,7 +29,7 @@ SoundNode::SoundNode() {
 * @param node Sound node to copy.
 */
 SoundNode::SoundNode(SoundNode& node) {
-
+    id = -1;
 }
 
 SoundNode::~SoundNode() {
@@ -41,5 +46,32 @@ void SoundNode::Accept(ISceneNodeVisitor& v) {
   v.VisitSoundNode(this);
 }
 
+void SoundNode::Play() {
+    PlayEventArg* e = new PlayEventArg();
+    e->id = id;
+    OpenALSoundManager::process->Notify(e);
+}
+
+void SoundNode::Stop() {
+    StopEventArg* e = new StopEventArg();
+    e->id = id;
+    OpenALSoundManager::process->Notify(e);
+}
+
+void SoundNode::Pause() {
+    PauseEventArg* e = new PauseEventArg();
+    e->id = id;
+    OpenALSoundManager::process->Notify(e);
+}
+
+float SoundNode::GetGain() {
+	return gain;
+}
+
+int SoundNode::GetID() {
+	return id;
+}
+
+    
 } //NS Scene
 } //NS OpenEngine

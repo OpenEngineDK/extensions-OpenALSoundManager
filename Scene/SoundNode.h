@@ -34,7 +34,8 @@ private:
     }
 
 
-    float vol;
+    float gain;
+    int id;
     //SoundResource* res;
     
 protected:
@@ -63,15 +64,16 @@ public:
 
     // Play methods
 
-/*     void Play(); */
+    void Play();
 
-/*     void Stop(); */
+    void Stop();
 
-/*     void Pause(); */
+    void Pause();
     
-/*     void Reset(); */
-    
-    
+	float GetGain();
+	int GetID();
+
+    //    void SetGain(float );
 };
 
 } // NS Scene
