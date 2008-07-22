@@ -15,8 +15,8 @@
 #include <Scene/TransformationNode.h>
 #include <Core/Event.h>
 #include <Logging/Logger.h>
-#include <AL/alc.h>
-#include <AL/al.h>
+
+#include <Meta/OpenAL.h>
 #include <Scene/SoundNode.h>
 #include <Math/Vector.h>
 #include <Math/Quaternion.h>

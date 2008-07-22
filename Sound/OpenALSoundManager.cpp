@@ -9,7 +9,7 @@
 
 #include <Sound/OpenALSoundManager.h>
 
-#include <AL/al.h>
+//#include <AL/al.h>
 
 #include <Logging/Logger.h>
 
