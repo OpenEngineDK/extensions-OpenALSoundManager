@@ -20,7 +20,7 @@
 #include <Scene/SoundNode.h>
 #include <Math/Vector.h>
 #include <Math/Quaternion.h>
-#include <Sound/SoundFileTuple.h>
+//#include <Sound/SoundFileTuple.h>
 
 #include <Core/IModule.h>
 #include <Core/QueuedEvent.h>
