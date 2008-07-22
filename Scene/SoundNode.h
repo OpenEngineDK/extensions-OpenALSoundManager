@@ -65,15 +65,15 @@ public:
     // Play methods
 
     void Play();
-
     void Stop();
-
     void Pause();
     
 	float GetGain();
-	int GetID();
+	void SetGain(float gain);
 
-    //    void SetGain(float );
+    int GetID();
+
+    
 };
 
 } // NS Scene

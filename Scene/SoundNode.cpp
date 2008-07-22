@@ -68,10 +68,17 @@ float SoundNode::GetGain() {
 	return gain;
 }
 
+void SoundNode::SetGain(float gain) {
+    this->gain = gain;
+    GainEventArg* e = new GainEventArg();
+    e->id = id;
+    e->gain = gain;
+    OpenALSoundManager::process->Notify(e);
+}
+
 int SoundNode::GetID() {
 	return id;
 }
-
     
 } //NS Scene
 } //NS OpenEngine

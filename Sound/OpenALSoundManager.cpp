@@ -16,19 +16,14 @@
 namespace OpenEngine {
 namespace Sound {
 
+//init static event queue
 QueuedEvent<SoundEventArg*>* OpenALSoundManager::process = new QueuedEvent<SoundEventArg*>();
 
 
-OpenALSoundManager::OpenALSoundManager(ISceneNode* root) {
-	//init the tree root
-	theroot = root;
+OpenALSoundManager::OpenALSoundManager(ISceneNode* root): theroot(root) {
     process->Attach(*this);
 }
 
-/**
- * OpenALSoundManager destructor.
- * Performs no clean up.
- */
 OpenALSoundManager::~OpenALSoundManager() {
 
 }
@@ -54,6 +49,7 @@ void OpenALSoundManager::Initialize() {
  */
 void OpenALSoundManager::Process(const float deltaTime, const float percent) {
 
+    // process the event queue
     OpenALSoundManager::process->Release();
 
 	//init to assumed startposition
@@ -64,7 +60,7 @@ void OpenALSoundManager::Process(const float deltaTime, const float percent) {
 	//init to assumed direction
 	dir = new Quaternion<float>();
 
-	theroot->VisitSubNodes(*this);
+	theroot->Accept(*this);
 
 	delete(dir);
 }

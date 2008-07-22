@@ -84,8 +84,6 @@ public:
 	void VisitSoundNode(SoundNode* node);
 
 	bool CheckID(int id);
-
-
 };
 
 
