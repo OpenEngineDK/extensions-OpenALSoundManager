@@ -43,18 +43,21 @@ void SoundNode::Accept(ISceneNodeVisitor& v) {
 void SoundNode::Play() {
     PlaybackEventArg e;
     e.action = PlaybackEventArg::PLAY;
+    e.node = this;
     OpenALSoundManager::playback->Notify(e);
 }
 
 void SoundNode::Stop() {
     PlaybackEventArg e;
     e.action = PlaybackEventArg::STOP;
+    e.node = this;
     OpenALSoundManager::playback->Notify(e);
 }
 
 void SoundNode::Pause() {
     PlaybackEventArg e;
     e.action = PlaybackEventArg::PAUSE;
+    e.node = this;
     OpenALSoundManager::playback->Notify(e);
 }
 

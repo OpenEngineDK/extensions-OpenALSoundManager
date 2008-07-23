@@ -47,9 +47,6 @@ void OpenALSoundManager::Initialize() {
  *       replaced by null since the initialization face. 
  */
 void OpenALSoundManager::Process(const float deltaTime, const float percent) {
-    // process the event queue
-    OpenALSoundManager::playback->Release();
-
     //init to assumed startposition
     pos = Vector<3,float>(0.0, 0.0, 0.0);
 
@@ -57,6 +54,9 @@ void OpenALSoundManager::Process(const float deltaTime, const float percent) {
     dir = new Quaternion<float>();
     theroot->Accept(*this);
     delete(dir);
+
+    // process the event queue
+    OpenALSoundManager::playback->Release();
 }
 
 void OpenALSoundManager::Deinitialize() {
@@ -66,7 +66,6 @@ void OpenALSoundManager::Deinitialize() {
 
     //for all source ids in sources
     //alDeleteSources(1, &sourceID);
-
 
     ALCcontext* thecontext = alcGetCurrentContext();
     ALCdevice* thedevice = alcGetContextsDevice(thecontext);
@@ -97,17 +96,8 @@ void OpenALSoundManager::VisitTransformationNode(TransformationNode* node) {
 	(*dir) = (*dir) * (transdir.GetInverse());
 }
 
-/*
-bool OpenALSoundManager::CheckID(int id) {
-
-	map<int, ALuint*>::iterator iter = loadedsoundfiles.find(id);
-	return (iter != loadedsoundfiles.end());
-
-}
-*/
-
 void OpenALSoundManager::VisitSoundNode(SoundNode* node) {
-    ALuint source = 0;//node->GetID();
+    ALuint source = 0;
     ALCenum error;
 	
     //check if loaded
@@ -134,63 +124,51 @@ void OpenALSoundManager::VisitSoundNode(SoundNode* node) {
 
 
 	//remember to add to loaded files
-	//node->SetID(source);
 	sourceIDs[node] = source;
     }
     else
-      source = iter->second;
+        source = iter->second;
 
     //setup the source settings
-    //logger.info << "position: " << pos << logger.end;
     alSource3f(source, AL_POSITION, pos[0], pos[1], pos[2]);
     if ((error = alGetError()) != AL_NO_ERROR) 
         throw Exception("tried to set position but got: " + error);
 
-    static bool init = false;
-    if(!init) {
-        alSourcePlay(source);
-	init = true;
-    }
-    
-	/*
-	alSourcef(source, AL_GAIN, (ALfloat)node->GetGain());
-	if ((error = alGetError()) != AL_NO_ERROR) 
-	    logger.info << "tried to set gain but got: " << error << logger.end;
-	*/
+    /*
+    alSourcef(source, AL_GAIN, (ALfloat)node->GetGain());
+    if ((error = alGetError()) != AL_NO_ERROR) 
+      throw Exception("tried to set gain but got: " + error);
+    */
+
     node->VisitSubNodes(*this);
 }
 
 void OpenALSoundManager::Handle(PlaybackEventArg e) {
+    map<SoundNode*,unsigned int>::iterator iter =
+      sourceIDs.find(e.node);
+    if (iter == sourceIDs.end()) {
+      logger.warning << "OpenAL sound not initialized" << logger.end;
+      return;
+    }
+    ALuint source = iter->second;
+
     switch (e.action) {
     case PlaybackEventArg::PLAY: 
-        logger.info << "lets play!" << logger.end;
-        if (e.id == -1) {
-            logger.warning << "OpenAL sound not initialized" << logger.end;
-            return;
-        }
-        alSourcePlay(e.id);
-    break;
+        logger.info << "play" << logger.end;
+        alSourcePlay(source);
+	break;
     case PlaybackEventArg::STOP: 
-        logger.info << "lets stop!" << logger.end;
-        if (e.id == -1) {
-            logger.warning << "OpenAL sound not initialized" << logger.end;
-            return;
-        }
-        alSourceStop(e.id);
+        logger.info << "stop" << logger.end;
+        alSourceStop(source);
         break;
     case PlaybackEventArg::PAUSE: 
-        logger.info << "lets pause!" << logger.end;
-        if (e.id == -1) {
-            logger.warning << "OpenAL sound not initialized" << logger.end;
-            return;
-        }
-        alSourcePause(e.id);
+        logger.info << "pause" << logger.end;
+        alSourcePause(source);
         break;
     default: 
         logger.warning << "Unknown playback event type" << logger.end;
     }
 }
-
 
 } // NS Sound
 } // NS OpenEngine

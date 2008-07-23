@@ -46,7 +46,7 @@ struct PlaybackEventArg  {
         PAUSE
     };
     
-    int id;
+    SoundNode* node;
     PlaybackAction action;
 };
 
