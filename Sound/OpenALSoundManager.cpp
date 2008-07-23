@@ -8,7 +8,11 @@
 //--------------------------------------------------------------------
 
 #include <Sound/OpenALSoundManager.h>
+
 #include <Logging/Logger.h>
+#include <Core/Exceptions.h>
+
+using OpenEngine::Core::Exception;
 
 namespace OpenEngine {
 namespace Sound {
@@ -21,23 +25,21 @@ OpenALSoundManager::OpenALSoundManager(ISceneNode* root): theroot(root) {
     playback->Attach(*this);
 }
 
-OpenALSoundManager::~OpenALSoundManager() {
-
-}
+OpenALSoundManager::~OpenALSoundManager() {}
 
 void OpenALSoundManager::Initialize() {
+    const ALCchar* defaultdevice = alcGetString( NULL, ALC_DEFAULT_DEVICE_SPECIFIER );
+    logger.info << "default audio device: " << defaultdevice << logger.end;
 
-	ALCdevice* thedevice = alcOpenDevice(NULL);
-
-	if (thedevice) {
-
-		ALCcontext* thecontext = alcCreateContext(thedevice, NULL);
-		alcMakeContextCurrent(thecontext);
-
-	}
-	else
-		logger.info << "this should never happen and if it those report to u040437 :)" << logger.end;
-
+    ALCdevice* thedevice = alcOpenDevice(NULL);
+    if (thedevice) {
+        ALCcontext* thecontext = alcCreateContext(thedevice, NULL);
+	alcMakeContextCurrent(thecontext);
+	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+	logger.info << "openal has been initialize" << logger.end;
+    }
+    else
+      throw new Exception("could not initalize sound module");
 }
 
 /**
@@ -45,40 +47,39 @@ void OpenALSoundManager::Initialize() {
  *       replaced by null since the initialization face. 
  */
 void OpenALSoundManager::Process(const float deltaTime, const float percent) {
-
     // process the event queue
     OpenALSoundManager::playback->Release();
 
-	//init to assumed startposition
-	pos[0] = 0.0;
-	pos[1] = 0.0;
-	pos[2] = 0.0;
+    //init to assumed startposition
+    pos = Vector<3,float>(0.0, 0.0, 0.0);
 
-	//init to assumed direction
-	dir = new Quaternion<float>();
-
-	theroot->Accept(*this);
-
-	delete(dir);
+    //init to assumed direction
+    dir = new Quaternion<float>();
+    theroot->Accept(*this);
+    delete(dir);
 }
 
 void OpenALSoundManager::Deinitialize() {
+    //@todo clean up
+    //for all buffer ids in buffers
+    //alDeleteBuffers(1, &bufferID);
 
-	ALCcontext* thecontext = alcGetCurrentContext();
-	ALCdevice* thedevice = alcGetContextsDevice(thecontext);
-	alcMakeContextCurrent(NULL);
-	alcDestroyContext(thecontext);
-	alcCloseDevice(thedevice);
+    //for all source ids in sources
+    //alDeleteSources(1, &sourceID);
 
+
+    ALCcontext* thecontext = alcGetCurrentContext();
+    ALCdevice* thedevice = alcGetContextsDevice(thecontext);
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(thecontext);
+    alcCloseDevice(thedevice);
 }
-
 
 bool OpenALSoundManager::IsTypeOf(const std::type_info& inf) {
     return ((typeid(OpenALSoundManager) == inf));
 }
 
 void OpenALSoundManager::VisitTransformationNode(TransformationNode* node) {
-	
 	//get the change in position from the transformation and apply to current
 	Vector<3, float> transpos = node->GetPosition();
 	pos = pos + transpos;
@@ -94,7 +95,6 @@ void OpenALSoundManager::VisitTransformationNode(TransformationNode* node) {
 
 	//take of turn again
 	(*dir) = (*dir) * (transdir.GetInverse());
-
 }
 
 /*
@@ -107,62 +107,57 @@ bool OpenALSoundManager::CheckID(int id) {
 */
 
 void OpenALSoundManager::VisitSoundNode(SoundNode* node) {
-
-	//make nessesary variables
-	ALuint* source;
-	ALCenum error;
+    ALuint source = 0;//node->GetID();
+    ALCenum error;
 	
-	//check if loaded
-/*	map<int, ALuint*>::iterator iter = loadedsoundfiles.find(node->GetID());
-	
-	if (iter != loadedsoundfiles.end()) {
+    //check if loaded
+    map<SoundNode*,unsigned int>::iterator iter =
+      sourceIDs.find(node);
 
-		source = iter->second;
-*/
-	if (node->GetID() != -1) {
-		//setup the source settings
-		alSource3f(*source, AL_POSITION, pos[0], pos[1], pos[2]);
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to set position but got: " << error << logger.end;
+    if (iter == sourceIDs.end()) {
+        //generate the source
+        alGenSources(1, &source);
 
-		alSourcef(*source, AL_GAIN, (ALfloat)node->GetGain());
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to set position but got: " << error << logger.end;
+	if ((error = alGetError()) != AL_NO_ERROR) 
+	    logger.info << "tried to gen source but got: " << error << logger.end;
 
-	}
-	//we have to load it :(((
-	else {
-				
-		//generate the source
-		alGenSources(1, source);
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to gen source but got: " << error << logger.end;
+	//attach the buffer
+	ALuint bufferID;
+	ISoundResourcePtr resource = node->GetResource();
+	alGenBuffers(1, &bufferID);
+	alBufferData(bufferID, resource->GetFormat(), resource->GetBuffer(),
+		     resource->GetBufferSize(), resource->GetFrequency());
+	alSourcei(source, AL_BUFFER, bufferID);
 
-		//setup the source settings
-		alSource3f(*source, AL_POSITION, pos[0], pos[1], pos[2]);
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to set position but got: " << error << logger.end;
+	if ((error = alGetError()) != AL_NO_ERROR) 
+	    throw Exception("tried to bind source and buffer together but got: " + error);
 
-		alSourcef(*source, AL_GAIN, (ALfloat)node->GetGain());
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to set position but got: " << error << logger.end;
 
-		//TODO BIND THIS TO Chistains ACTUAL DATA
-		ALuint *data;
-		
-		//attach the buffer
-		alSourcei(*source, AL_BUFFER, *data);
-		if ((error = alGetError()) != AL_NO_ERROR) 
-			logger.info << "tried to bind source and buffer together but got: " << error << logger.end;
+	//remember to add to loaded files
+	//node->SetID(source);
+	sourceIDs[node] = source;
+    }
+    else
+      source = iter->second;
 
-		node->SetID(*source);
+    //setup the source settings
+    //logger.info << "position: " << pos << logger.end;
+    alSource3f(source, AL_POSITION, pos[0], pos[1], pos[2]);
+    if ((error = alGetError()) != AL_NO_ERROR) 
+        throw Exception("tried to set position but got: " + error);
 
-/*		//remember to add to loaded files
-		loadedsoundfiles[node->GetID()] = source; */
-	}
-
-	node->VisitSubNodes(*this);
-
+    static bool init = false;
+    if(!init) {
+        alSourcePlay(source);
+	init = true;
+    }
+    
+	/*
+	alSourcef(source, AL_GAIN, (ALfloat)node->GetGain());
+	if ((error = alGetError()) != AL_NO_ERROR) 
+	    logger.info << "tried to set gain but got: " << error << logger.end;
+	*/
+    node->VisitSubNodes(*this);
 }
 
 void OpenALSoundManager::Handle(PlaybackEventArg e) {

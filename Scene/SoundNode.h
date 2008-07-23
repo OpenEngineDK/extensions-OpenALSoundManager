@@ -14,6 +14,10 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
+#include <Resources/ISoundResource.h>
+
+using namespace OpenEngine::Resources;
+
 namespace OpenEngine {
 namespace Scene {
 
@@ -33,10 +37,8 @@ private:
         ar & boost::serialization::base_object<SceneNode>(*this);
     }
 
-
+    ISoundResourcePtr resource;
     float gain;
-    int id;
-    //SoundResource* res;
     
 protected:
     ISceneNode* CloneSelf();
@@ -45,7 +47,7 @@ public:
     /**
      * Default constructor.
      */
-    SoundNode();
+    SoundNode(ISoundResourcePtr resource);
 
     SoundNode(SoundNode& node);
 
@@ -68,12 +70,10 @@ public:
     void Stop();
     void Pause();
     
-	float GetGain();
-	void SetGain(float gain);
+    float GetGain();
+    void SetGain(float gain);
 
-
-    int GetID();
-    void SetID(int val);
+    ISoundResourcePtr GetResource();
 
 };
 

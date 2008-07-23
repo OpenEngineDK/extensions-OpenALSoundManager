@@ -18,9 +18,7 @@ namespace Scene {
 
 using namespace OpenEngine::Sound;
 
-SoundNode::SoundNode() {
-    id = -1;
-}
+SoundNode::SoundNode(ISoundResourcePtr resource) : resource(resource) { }
 
 /**
 * Copy constructor.
@@ -28,13 +26,9 @@ SoundNode::SoundNode() {
 *
 * @param node Sound node to copy.
 */
-SoundNode::SoundNode(SoundNode& node) {
-    id = -1;
-}
+SoundNode::SoundNode(SoundNode& node) { }
 
-SoundNode::~SoundNode() {
-
-}
+SoundNode::~SoundNode() {}
 
 ISceneNode* SoundNode::CloneSelf() {
   SoundNode* clone = new SoundNode(*this);
@@ -48,21 +42,18 @@ void SoundNode::Accept(ISceneNodeVisitor& v) {
 
 void SoundNode::Play() {
     PlaybackEventArg e;
-    e.id = id;
     e.action = PlaybackEventArg::PLAY;
     OpenALSoundManager::playback->Notify(e);
 }
 
 void SoundNode::Stop() {
     PlaybackEventArg e;
-    e.id = id;
     e.action = PlaybackEventArg::STOP;
     OpenALSoundManager::playback->Notify(e);
 }
 
 void SoundNode::Pause() {
     PlaybackEventArg e;
-    e.id = id;
     e.action = PlaybackEventArg::PAUSE;
     OpenALSoundManager::playback->Notify(e);
 }
@@ -79,14 +70,9 @@ void SoundNode::SetGain(float gain) {
 //     OpenALSoundManager::process->Notify(e);
 }
 
-int SoundNode::GetID() {
-	return id;
+ISoundResourcePtr SoundNode::GetResource() {
+    return resource;
 }
-
-void SoundNode::SetID(int val) {
-	id = val;
-}
-
     
 } //NS Scene
 } //NS OpenEngine

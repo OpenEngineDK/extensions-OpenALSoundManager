@@ -65,7 +65,7 @@ private:
 	ISceneNode* theroot;
 
 	//the map
-//	map<int,ALuint*> loadedsoundfiles;
+	map<SoundNode*, unsigned int> sourceIDs;
 
 public:
     static QueuedEvent<PlaybackEventArg>* playback;
