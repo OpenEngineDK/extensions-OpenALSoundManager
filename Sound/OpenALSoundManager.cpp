@@ -35,10 +35,11 @@ void OpenALSoundManager::Initialize() {
     if (thedevice) {
         ALCcontext* thecontext = alcCreateContext(thedevice, NULL);
 	alcMakeContextCurrent(thecontext);
-	logger.info << "openal has been initialize" << logger.end;
+	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+	logger.info << "OpenAL has been initialized" << logger.end;
     }
     else
-      throw new Exception("could not initalize sound module");
+      throw new Exception("Could not initalize sound module");
 }
 
 /**
@@ -134,6 +135,7 @@ void OpenALSoundManager::VisitSoundNode(SoundNode* node) {
 
     //setup the source settings
     alSource3f(source, AL_POSITION, pos[0], pos[1], pos[2]);
+    logger.info << "node " << source << " position: " << pos << logger.end;
     if ((error = alGetError()) != AL_NO_ERROR) 
         throw Exception("tried to set position but got: " + error);
 
