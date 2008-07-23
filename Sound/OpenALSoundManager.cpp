@@ -21,7 +21,7 @@ namespace Sound {
 QueuedEvent<PlaybackEventArg>* OpenALSoundManager::playback = new QueuedEvent<PlaybackEventArg>();
 
 
-OpenALSoundManager::OpenALSoundManager(ISceneNode* root): theroot(root) {
+  OpenALSoundManager::OpenALSoundManager(ISceneNode* root, IViewingVolume* vv): theroot(root), vv(vv) {
     playback->Attach(*this);
 }
 
@@ -35,7 +35,6 @@ void OpenALSoundManager::Initialize() {
     if (thedevice) {
         ALCcontext* thecontext = alcCreateContext(thedevice, NULL);
 	alcMakeContextCurrent(thecontext);
-	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
 	logger.info << "openal has been initialize" << logger.end;
     }
     else
@@ -47,6 +46,10 @@ void OpenALSoundManager::Initialize() {
  *       replaced by null since the initialization face. 
  */
 void OpenALSoundManager::Process(const float deltaTime, const float percent) {
+    Vector<3,float> vvpos = vv->GetPosition();
+    logger.info << "viewing from: " << vvpos << logger.end;
+    alListener3f(AL_POSITION, vvpos[0], vvpos[1], vvpos[2]);
+
     //init to assumed startposition
     pos = Vector<3,float>(0.0, 0.0, 0.0);
 

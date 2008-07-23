@@ -10,6 +10,7 @@
 #ifndef _OPENAL_SOUND_MANAGER_H_
 #define _OPENAL_SOUND_MANAGER_H_
 
+#include <Display/IViewingVolume.h>
 #include <Scene/ISceneNode.h>
 #include <Scene/ISceneNodeVisitor.h> 
 #include <Scene/TransformationNode.h>
@@ -37,6 +38,7 @@ using namespace OpenEngine::Scene;
 using OpenEngine::Core::IModule;
 using OpenEngine::Core::QueuedEvent;
 using OpenEngine::Core::IListener;
+using OpenEngine::Display::IViewingVolume;
 
 // Audio playback events
 struct PlaybackEventArg  {
@@ -63,14 +65,15 @@ private:
 	
 	//the root of the tree
 	ISceneNode* theroot;
-
+	IViewingVolume* vv;
+	
 	//the map
 	map<SoundNode*, unsigned int> sourceIDs;
 
 public:
     static QueuedEvent<PlaybackEventArg>* playback;
 
-    OpenALSoundManager(ISceneNode* root);
+    OpenALSoundManager(ISceneNode* root, IViewingVolume* vv);
     ~OpenALSoundManager();
 
     void Initialize();
