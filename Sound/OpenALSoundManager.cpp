@@ -14,11 +14,11 @@ namespace OpenEngine {
 namespace Sound {
 
 //init static event queue
-QueuedEvent<SoundEventArg*>* OpenALSoundManager::process = new QueuedEvent<SoundEventArg*>();
+QueuedEvent<PlaybackEventArg>* OpenALSoundManager::playback = new QueuedEvent<PlaybackEventArg>();
 
 
 OpenALSoundManager::OpenALSoundManager(ISceneNode* root): theroot(root) {
-    process->Attach(*this);
+    playback->Attach(*this);
 }
 
 OpenALSoundManager::~OpenALSoundManager() {
@@ -47,7 +47,7 @@ void OpenALSoundManager::Initialize() {
 void OpenALSoundManager::Process(const float deltaTime, const float percent) {
 
     // process the event queue
-    OpenALSoundManager::process->Release();
+    OpenALSoundManager::playback->Release();
 
 	//init to assumed startposition
 	pos[0] = 0.0;
@@ -165,52 +165,35 @@ void OpenALSoundManager::VisitSoundNode(SoundNode* node) {
 
 }
 
-
-void OpenALSoundManager::HandleEvent(PlayEventArg* e) {
-    logger.info << "lets play!" << logger.end;
-    if (e->id == -1) {
-        logger.warning << "OpenAL sound not initialized" << logger.end;
-        return;
+void OpenALSoundManager::Handle(PlaybackEventArg e) {
+    switch (e.action) {
+    case PlaybackEventArg::PLAY: 
+        logger.info << "lets play!" << logger.end;
+        if (e.id == -1) {
+            logger.warning << "OpenAL sound not initialized" << logger.end;
+            return;
+        }
+        alSourcePlay(e.id);
+    break;
+    case PlaybackEventArg::STOP: 
+        logger.info << "lets stop!" << logger.end;
+        if (e.id == -1) {
+            logger.warning << "OpenAL sound not initialized" << logger.end;
+            return;
+        }
+        alSourceStop(e.id);
+        break;
+    case PlaybackEventArg::PAUSE: 
+        logger.info << "lets pause!" << logger.end;
+        if (e.id == -1) {
+            logger.warning << "OpenAL sound not initialized" << logger.end;
+            return;
+        }
+        alSourcePause(e.id);
+        break;
+    default: 
+        logger.warning << "Unknown playback event type" << logger.end;
     }
-    
-    alSourcePlay(e->id);
-}
-
-void OpenALSoundManager::HandleEvent(StopEventArg* e) {
-    logger.info << "lets stop!" << logger.end;
-    if (e->id == -1) {
-        logger.warning << "OpenAL sound not initialized" << logger.end;
-        return;
-    }
-    alSourceStop(e->id);
-}
-
-void OpenALSoundManager::HandleEvent(PauseEventArg* e) {
-    logger.info << "lets pause!" << logger.end;
-    if (e->id == -1) {
-        logger.warning << "OpenAL sound not initialized" << logger.end;
-        return;
-    }
-    alSourcePause(e->id);
-}
-
-void OpenALSoundManager::HandleEvent(GainEventArg* e) {
-    logger.info << "lets gain!" << logger.end;
-    if (e->id == -1) {
-        logger.warning << "OpenAL sound not initialized" << logger.end;
-        return;
-    }
-    alSourcef(e->id, AL_GAIN, e->gain);
-}
-
-void OpenALSoundManager::HandleEvent(SoundEventArg* e) {
-    
-    logger.warning << "Unknown event type" << logger.end;
-}
-
-void OpenALSoundManager::Handle(SoundEventArg* e) {
-    e->Apply(this);
-    delete e;
 }
 
 

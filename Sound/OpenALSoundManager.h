@@ -39,20 +39,23 @@ using OpenEngine::Core::QueuedEvent;
 using OpenEngine::Core::IListener;
 
 // Audio playback events
-// Forward references
-class SoundEventArg;
-class PlayEventArg;
-class PauseEventArg;
-class StopEventArg;
-class SeekEventArg;
-class GainEventArg;
+struct PlaybackEventArg  {
+    enum PlaybackAction {
+        PLAY,
+        STOP,
+        PAUSE
+    };
+    
+    int id;
+    PlaybackAction action;
+};
 
 /**
  * Renderer using OpenGL
  *
  * @class Renderer Renderer.h Renderers/OpenGL/IRenderer.h
  */
-class OpenALSoundManager : public IModule, IListener<SoundEventArg*>, public ISceneNodeVisitor {
+class OpenALSoundManager : public IModule, IListener<PlaybackEventArg>, public ISceneNodeVisitor {
 private:
 	//the current position and rotation
 	Vector<3, float> pos;
@@ -65,7 +68,7 @@ private:
 //	map<int,ALuint*> loadedsoundfiles;
 
 public:
-    static QueuedEvent<SoundEventArg*>* process;
+    static QueuedEvent<PlaybackEventArg>* playback;
 
     OpenALSoundManager(ISceneNode* root);
     ~OpenALSoundManager();
@@ -75,75 +78,13 @@ public:
     void Deinitialize();
     bool IsTypeOf(const std::type_info& inf);
 
-    void HandleEvent(SoundEventArg* e);
-    void HandleEvent(PlayEventArg* e);
-    void HandleEvent(StopEventArg* e);
-    void HandleEvent(PauseEventArg* e);
-    void HandleEvent(GainEventArg* e);
-    void Handle(SoundEventArg* e);
+    void Handle(PlaybackEventArg e);
 
     void VisitTransformationNode(TransformationNode* node);
 	void VisitSoundNode(SoundNode* node);
 
 //	bool CheckID(int id);
 
-};
-
-
-class SoundEventArg {
-public:
-    SoundEventArg() {}
-    virtual ~SoundEventArg() {}
-    //OpenALSoundResource* sound
-    int id;
-    virtual void Apply(OpenALSoundManager* sm) = 0;
-};
-
-class PlayEventArg : public SoundEventArg {
-public:
-    PlayEventArg() {}
-    virtual ~PlayEventArg() {}
-    void Apply(OpenALSoundManager* sm) {
-        sm->HandleEvent(this);
-    };
-};
-
-class StopEventArg : public SoundEventArg {
-public:
-    StopEventArg() {}
-    virtual ~StopEventArg() {}
-    void Apply(OpenALSoundManager* sm) {
-        sm->HandleEvent(this);
-    };
-};
-
-class PauseEventArg : public SoundEventArg {
-public:
-    PauseEventArg() {}
-    virtual ~PauseEventArg() {}    
-    void Apply(OpenALSoundManager* sm) {
-        sm->HandleEvent(this);
-    };
-};
-
-class SeekEventArg : public SoundEventArg {
-public:
-    SeekEventArg() {}
-    virtual ~SeekEventArg() {}
-    int pos;
-    void Apply(OpenALSoundManager* sm) {
-        sm->HandleEvent(this);
-    };
-};
-
-class GainEventArg : public SoundEventArg {
-public:
-    GainEventArg() {}
-    virtual ~GainEventArg() {}
-    float gain;
-    void Apply(OpenALSoundManager* sm) {
-        sm->HandleEvent(this);
-    };
 };
 
 } // NS Sound

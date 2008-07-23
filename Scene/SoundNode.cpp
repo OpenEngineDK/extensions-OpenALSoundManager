@@ -47,21 +47,24 @@ void SoundNode::Accept(ISceneNodeVisitor& v) {
 }
 
 void SoundNode::Play() {
-    PlayEventArg* e = new PlayEventArg();
-    e->id = id;
-    OpenALSoundManager::process->Notify(e);
+    PlaybackEventArg e;
+    e.id = id;
+    e.action = PlaybackEventArg::PLAY;
+    OpenALSoundManager::playback->Notify(e);
 }
 
 void SoundNode::Stop() {
-    StopEventArg* e = new StopEventArg();
-    e->id = id;
-    OpenALSoundManager::process->Notify(e);
+    PlaybackEventArg e;
+    e.id = id;
+    e.action = PlaybackEventArg::STOP;
+    OpenALSoundManager::playback->Notify(e);
 }
 
 void SoundNode::Pause() {
-    PauseEventArg* e = new PauseEventArg();
-    e->id = id;
-    OpenALSoundManager::process->Notify(e);
+    PlaybackEventArg e;
+    e.id = id;
+    e.action = PlaybackEventArg::PAUSE;
+    OpenALSoundManager::playback->Notify(e);
 }
 
 float SoundNode::GetGain() {
@@ -70,10 +73,10 @@ float SoundNode::GetGain() {
 
 void SoundNode::SetGain(float gain) {
     this->gain = gain;
-    GainEventArg* e = new GainEventArg();
-    e->id = id;
-    e->gain = gain;
-    OpenALSoundManager::process->Notify(e);
+//     GainEventArg e;
+//     e.id = id;
+//     e.gain = gain;
+//     OpenALSoundManager::process->Notify(e);
 }
 
 int SoundNode::GetID() {
