@@ -114,6 +114,19 @@ OpenALSoundManager::OpenALSound::~OpenALSound() {
 
 void OpenALSoundManager::OpenALSound::Play() {
     alSourcePlay(sourceID);
+    //alSourcef(src, AL_REFERENCE_DISTANCE, 1.0 );
+    PrintAttribute(AL_REFERENCE_DISTANCE);
+    PrintAttribute(AL_CONE_INNER_ANGLE);
+    PrintAttribute(AL_ROLLOFF_FACTOR);
+    PrintAttribute(AL_MAX_DISTANCE);
+}
+
+void OpenALSoundManager::OpenALSound::PrintAttribute(ALenum e) {
+    float* where = new float[3];
+    alGetSourcefv(sourceID, e, where);
+    Vector<3,float> vec = Vector<3,float>(where[0],where[1],where[2]);
+    delete where;
+    logger.info << "(" << e << "): " << vec << logger.end;
 }
 
 void OpenALSoundManager::OpenALSound::Stop() {

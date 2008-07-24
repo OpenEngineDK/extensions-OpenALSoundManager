@@ -53,6 +53,8 @@ private:
 	Vector<3,float> pos;
 	Quaternion<float> dir;
 	ISoundResourcePtr resource;
+
+	void PrintAttribute(ALenum e);
     public:
 	OpenALSound(ISoundResourcePtr resource);
 	~OpenALSound();
