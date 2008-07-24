@@ -1,4 +1,4 @@
-// Sound node.
+// SoundNode wrapping an object implementing ISound.
 // -------------------------------------------------------------------
 // Copyright (C) 2007 OpenEngine.dk (See AUTHORS) 
 // 
@@ -14,12 +14,14 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-#include <Resources/ISoundResource.h>
-
-using namespace OpenEngine::Resources;
-
 namespace OpenEngine {
+    //forward declarations
+    namespace Sound{
+        class ISound;
+    }
 namespace Scene {
+
+using OpenEngine::Sound::ISound;
 
 /**
  * Sound node.
@@ -37,44 +39,18 @@ private:
         ar & boost::serialization::base_object<SceneNode>(*this);
     }
 
-    ISoundResourcePtr resource;
-    float gain;
+    ISound* sound;
     
 protected:
     ISceneNode* CloneSelf();
 
 public:
-    /**
-     * Default constructor.
-     */
-    SoundNode(ISoundResourcePtr resource);
-
+    SoundNode(ISound* sound);
     SoundNode(SoundNode& node);
+    virtual ~SoundNode();
 
-    /**
-     * Destructor.
-     */
-    ~SoundNode();
-
-    /**
-     * Accept a visitor.
-     *
-     * @see ISceneNode::Accept
-     */
     void Accept(ISceneNodeVisitor& visitor);
-    
-
-    // Play methods
-
-    void Play();
-    void Stop();
-    void Pause();
-    
-    float GetGain();
-    void SetGain(float gain);
-
-    ISoundResourcePtr GetResource();
-
+    ISound* GetSound();
 };
 
 } // NS Scene

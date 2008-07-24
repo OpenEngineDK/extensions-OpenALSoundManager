@@ -3,7 +3,7 @@
 ADD_LIBRARY(Extensions_OpenALSoundManager
   Scene/SoundNode.cpp
   Sound/OpenALSoundManager.cpp
-#  Sound/SoundFileTuple.cpp
+  Sound/OpenALSound.cpp
 )
 
 TARGET_LINK_LIBRARIES(Extensions_OpenALSoundManager

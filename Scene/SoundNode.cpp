@@ -1,4 +1,4 @@
-// Sound node.
+// SoundNode wrapping an object implementing ISound.
 // -------------------------------------------------------------------
 // Copyright (C) 2007 OpenEngine.dk (See AUTHORS) 
 // 
@@ -9,16 +9,10 @@
 
 #include <Scene/SoundNode.h>
 
-#include <Sound/OpenALSoundManager.h>
-
-#include <Logging/Logger.h>
-
 namespace OpenEngine {
 namespace Scene {
 
-using namespace OpenEngine::Sound;
-
-SoundNode::SoundNode(ISoundResourcePtr resource) : resource(resource) { }
+SoundNode::SoundNode(ISound* sound) : sound(sound) { }
 
 /**
 * Copy constructor.
@@ -26,7 +20,9 @@ SoundNode::SoundNode(ISoundResourcePtr resource) : resource(resource) { }
 *
 * @param node Sound node to copy.
 */
-SoundNode::SoundNode(SoundNode& node) { }
+SoundNode::SoundNode(SoundNode& node) { 
+    sound = node.sound;
+}
 
 SoundNode::~SoundNode() {}
 
@@ -40,41 +36,8 @@ void SoundNode::Accept(ISceneNodeVisitor& v) {
   v.VisitSoundNode(this);
 }
 
-void SoundNode::Play() {
-    PlaybackEventArg e;
-    e.action = PlaybackEventArg::PLAY;
-    e.node = this;
-    OpenALSoundManager::playback->Notify(e);
-}
-
-void SoundNode::Stop() {
-    PlaybackEventArg e;
-    e.action = PlaybackEventArg::STOP;
-    e.node = this;
-    OpenALSoundManager::playback->Notify(e);
-}
-
-void SoundNode::Pause() {
-    PlaybackEventArg e;
-    e.action = PlaybackEventArg::PAUSE;
-    e.node = this;
-    OpenALSoundManager::playback->Notify(e);
-}
-
-float SoundNode::GetGain() {
-	return gain;
-}
-
-void SoundNode::SetGain(float gain) {
-    this->gain = gain;
-//     GainEventArg e;
-//     e.id = id;
-//     e.gain = gain;
-//     OpenALSoundManager::process->Notify(e);
-}
-
-ISoundResourcePtr SoundNode::GetResource() {
-    return resource;
+ISound* SoundNode::GetSound() {
+    return sound;
 }
     
 } //NS Scene
