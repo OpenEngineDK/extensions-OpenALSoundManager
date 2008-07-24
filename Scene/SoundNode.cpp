@@ -9,6 +9,8 @@
 
 #include <Scene/SoundNode.h>
 
+#include <Sound/ISound.h>
+
 namespace OpenEngine {
 namespace Scene {
 
