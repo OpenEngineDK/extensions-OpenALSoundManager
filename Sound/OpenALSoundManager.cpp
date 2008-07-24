@@ -13,7 +13,6 @@
 #include <Core/Exceptions.h>
 #include <Sound/SoundNodeVisitor.h>
 #include <Sound/ISound.h>
-#include <Sound/OpenALSound.h>
 #include <Utils/Convert.h>
 
 namespace OpenEngine {
