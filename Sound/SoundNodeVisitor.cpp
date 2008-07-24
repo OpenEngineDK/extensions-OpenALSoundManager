@@ -1,7 +1,7 @@
 #include <Sound/SoundNodeVisitor.h>
 
-#include <Sound/ISound.h>
 #include <Core/Exceptions.h>
+#include <Sound/ISound.h>
 
 namespace OpenEngine {
 namespace Sound {

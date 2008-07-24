@@ -45,6 +45,8 @@ void OpenALSoundManager::Init() {
         ALCcontext* thecontext = alcCreateContext(thedevice, NULL);
 	alcMakeContextCurrent(thecontext);
 	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+	alDistanceModel(AL_EXPONENT_DISTANCE);
+	//alDopplerFactor(10.0f);
 	logger.info << "OpenAL has been initialized" << logger.end;
     }
     else
@@ -114,19 +116,50 @@ OpenALSoundManager::OpenALSound::~OpenALSound() {
 
 void OpenALSoundManager::OpenALSound::Play() {
     alSourcePlay(sourceID);
-    //alSourcef(src, AL_REFERENCE_DISTANCE, 1.0 );
+    //alSourcef(sourceID, AL_MAX_DISTANCE, 0.000000000000001 );
     PrintAttribute(AL_REFERENCE_DISTANCE);
     PrintAttribute(AL_CONE_INNER_ANGLE);
+    PrintAttribute(AL_CONE_OUTER_ANGLE);
     PrintAttribute(AL_ROLLOFF_FACTOR);
     PrintAttribute(AL_MAX_DISTANCE);
+    PrintAttribute(AL_GAIN);
+    PrintAttribute(AL_ROLLOFF_FACTOR);
 }
 
 void OpenALSoundManager::OpenALSound::PrintAttribute(ALenum e) {
     float* where = new float[3];
+    where[0] = where[1] = where[2] = 0.0;
     alGetSourcefv(sourceID, e, where);
     Vector<3,float> vec = Vector<3,float>(where[0],where[1],where[2]);
     delete where;
-    logger.info << "(" << e << "): " << vec << logger.end;
+    logger.info << "" << EnumToString(e) << ": " << vec << logger.end;
+}
+
+string OpenALSoundManager::OpenALSound::EnumToString(ALenum e) {
+  string str;
+  switch(e) {
+  case AL_REFERENCE_DISTANCE:
+    str = "AL_REFERENCE_DISTANCE";
+    break;
+  case AL_CONE_INNER_ANGLE:
+    str = "AL_CONE_INNER_ANGLE";
+    break;
+  case AL_CONE_OUTER_ANGLE:
+    str = "AL_CONE_INNER_ANGLE";
+    break;
+  case AL_ROLLOFF_FACTOR:
+    str = "AL_ROLLOFF_FACTOR";
+    break;
+  case AL_MAX_DISTANCE:
+    str = "AL_MAX_DISTANCE";
+    break;
+  case AL_GAIN:
+    str = "AL_GAIN";
+    break;
+  default:
+    str = "unknown";
+  }
+  return str;
 }
 
 void OpenALSoundManager::OpenALSound::Stop() {
@@ -147,6 +180,7 @@ Quaternion<float> OpenALSoundManager::OpenALSound::GetRotation() {
 }
 
 void OpenALSoundManager::OpenALSound::SetPosition(Vector<3,float> pos) {
+    //logger.info << "pos: " << pos << logger.end;
     alSource3f(sourceID, AL_POSITION, pos[0], pos[1], pos[2]);
 
     ALCenum error;

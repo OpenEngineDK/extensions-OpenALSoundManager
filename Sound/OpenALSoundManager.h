@@ -55,6 +55,7 @@ private:
 	ISoundResourcePtr resource;
 
 	void PrintAttribute(ALenum e);
+	string EnumToString(ALenum e);
     public:
 	OpenALSound(ISoundResourcePtr resource);
 	~OpenALSound();
