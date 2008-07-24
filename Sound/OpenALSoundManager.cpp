@@ -21,13 +21,7 @@ namespace Sound {
 using OpenEngine::Core::Exception;
 using OpenEngine::Utils::Convert;
 
-//init static event queue
-QueuedEvent<PlaybackEventArg>* OpenALSoundManager::playback = new QueuedEvent<PlaybackEventArg>();
-
-
 OpenALSoundManager::OpenALSoundManager(ISceneNode* root, IViewingVolume* vv): theroot(root), vv(vv) {
-    playback->Attach(*this);
-
     Init();
 }
 
@@ -72,9 +66,6 @@ void OpenALSoundManager::Process(const float deltaTime, const float percent) {
     SoundNodeVisitor* snv = new SoundNodeVisitor();
     theroot->Accept(*snv);
     delete snv;
-
-    // process the event queue
-    OpenALSoundManager::playback->Release();
 }
 
 void OpenALSoundManager::Deinitialize() {
@@ -87,27 +78,6 @@ void OpenALSoundManager::Deinitialize() {
 
 bool OpenALSoundManager::IsTypeOf(const std::type_info& inf) {
     return ((typeid(OpenALSoundManager) == inf));
-}
-
-void OpenALSoundManager::Handle(PlaybackEventArg e) {
-    ALuint source = e.node->GetSound()->GetID();
-
-    switch (e.action) {
-    case PlaybackEventArg::PLAY: 
-        logger.info << "play" << logger.end;
-        alSourcePlay(source);
-	break;
-    case PlaybackEventArg::STOP: 
-        logger.info << "stop" << logger.end;
-        alSourceStop(source);
-        break;
-    case PlaybackEventArg::PAUSE: 
-        logger.info << "pause" << logger.end;
-        alSourcePause(source);
-        break;
-    default: 
-        logger.warning << "Unknown playback event type" << logger.end;
-    }
 }
 
 OpenALSoundManager::OpenALSound::OpenALSound(ISoundResourcePtr resource) : resource(resource) {

@@ -39,19 +39,7 @@ using OpenEngine::Scene::ISceneNode;
 using OpenEngine::Scene::SoundNode;
 using OpenEngine::Resources::ISoundResourcePtr;
 
-// Audio playback events
-struct PlaybackEventArg  {
-    enum PlaybackAction {
-        PLAY,
-        STOP,
-        PAUSE
-    };
-    
-    SoundNode* node;
-    PlaybackAction action;
-};
-
-class OpenALSoundManager : public IModule, IListener<PlaybackEventArg> {
+class OpenALSoundManager : public IModule {
 private:
     ISceneNode* theroot;
     IViewingVolume* vv;
@@ -83,8 +71,6 @@ private:
     };
 
 public:
-    static QueuedEvent<PlaybackEventArg>* playback;
-
     OpenALSoundManager(ISceneNode* root, IViewingVolume* vv);
     ~OpenALSoundManager();
 
@@ -94,8 +80,6 @@ public:
     void Process(const float deltaTime, const float percent);
     void Deinitialize();
     bool IsTypeOf(const std::type_info& inf);
-
-    void Handle(PlaybackEventArg e);
 };
 
 } // NS Sound
