@@ -36,6 +36,11 @@ ISound* OpenALSoundManager::CreateSound(ISoundResourcePtr resource) {
 void OpenALSoundManager::Initialize() {}
 
 void OpenALSoundManager::Init() {
+    logger.info << "AL_VENDOR: " << alGetString(AL_VENDOR) << logger.end;
+    logger.info << "AL_RENDERER: " << alGetString(AL_RENDERER) << logger.end;
+    logger.info << "AL_VERSION: " << alGetString(AL_VERSION) << logger.end;
+    logger.info << "AL_EXTENSIONS: " << alGetString(AL_EXTENSIONS) << logger.end;
+
     const ALCchar* defaultdevice = 
       alcGetString( NULL, ALC_DEFAULT_DEVICE_SPECIFIER );
     logger.info << "default audio device: " << defaultdevice << logger.end;
@@ -45,8 +50,7 @@ void OpenALSoundManager::Init() {
         ALCcontext* thecontext = alcCreateContext(thedevice, NULL);
 	alcMakeContextCurrent(thecontext);
 	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
-	alDistanceModel(AL_EXPONENT_DISTANCE);
-	//alDopplerFactor(10.0f);
+	//alDistanceModel(AL_EXPONENT_DISTANCE);
 	logger.info << "OpenAL has been initialized" << logger.end;
     }
     else
@@ -116,7 +120,7 @@ OpenALSoundManager::OpenALSound::~OpenALSound() {
 
 void OpenALSoundManager::OpenALSound::Play() {
     alSourcePlay(sourceID);
-    //alSourcef(sourceID, AL_MAX_DISTANCE, 0.000000000000001 );
+    //alSourcef(sourceID, AL_MAX_DISTANCE, 0.001 );
     PrintAttribute(AL_REFERENCE_DISTANCE);
     PrintAttribute(AL_CONE_INNER_ANGLE);
     PrintAttribute(AL_CONE_OUTER_ANGLE);
@@ -145,7 +149,7 @@ string OpenALSoundManager::OpenALSound::EnumToString(ALenum e) {
     str = "AL_CONE_INNER_ANGLE";
     break;
   case AL_CONE_OUTER_ANGLE:
-    str = "AL_CONE_INNER_ANGLE";
+    str = "AL_CONE_OUTER_ANGLE";
     break;
   case AL_ROLLOFF_FACTOR:
     str = "AL_ROLLOFF_FACTOR";
