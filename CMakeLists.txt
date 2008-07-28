@@ -7,6 +7,6 @@ ADD_LIBRARY(Extensions_OpenALSoundManager
 )
 
 TARGET_LINK_LIBRARIES(Extensions_OpenALSoundManager
-  Extensions_OpenALSoundResource
+  Extensions_VorbisResource
   ${OPENAL_LIBRARY}
 )
